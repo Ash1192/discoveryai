@@ -1,0 +1,26 @@
+Review_ID,Product_Category,Review_Text,Rating,Date,Verified_Purchase
+R001,Returns,I tried to return a defective Bluetooth speaker but the return portal kept rejecting my QR code. Spent 2 hours trying to resolve it. Terrible experience.,1,Jan 2025,Yes
+R002,Electronics,The laptop arrived with a cracked screen. Return process was straightforward but took 18 days to get my refund. Way too long.,2,Jan 2025,Yes
+R003,Clothing,Ordered a jacket in size L but received size S. The return label printed fine but the drop-off location said the barcode was unreadable.,2,Feb 2025,Yes
+R004,Electronics,Love the product but had to return it because wrong item was sent. The return took 3 weeks and I had to call support twice to chase my refund.,1,Feb 2025,Yes
+R005,Home & Kitchen,Returned a faulty coffee maker. The refund arrived in 4 days - genuinely impressed with how smooth the process was.,5,Feb 2025,Yes
+R006,Returns,Third-party seller sent me a completely different product. Amazon support was helpful but the seller took 20 days to approve my return. Unacceptable.,1,Mar 2025,Yes
+R007,Clothing,Size chart was completely wrong. Returned the item easily but the return window was almost closed by the time I noticed. Need better size guidance.,3,Mar 2025,Yes
+R008,Electronics,The return QR code expired before I could get to a drop-off point. Had to contact support to regenerate it. Added 5 extra days to my return.,2,Mar 2025,Yes
+R009,Books,Wrong edition was sent. Return was smooth and refund came within 3 days. Amazon handled this really well.,5,Apr 2025,Yes
+R010,Home & Kitchen,The product stopped working after 2 weeks. Tried to return it but the system said it was outside the return window even though it was defective.,1,Apr 2025,Yes
+R011,Electronics,Returned a duplicate order. The process was easy but I received only a partial refund with no explanation. Still waiting for the remaining amount.,2,Apr 2025,Yes
+R012,Clothing,The return drop-off near me stopped accepting Amazon returns with no notice. Had to drive 20 miles to find another location.,2,May 2025,Yes
+R013,Toys,Bought for my child but it was not as described. Return was quick and painless. Very satisfied with the resolution.,5,May 2025,Yes
+R014,Returns,I returned an item 3 weeks ago and have not received my refund yet. Support keeps telling me it is being processed. This is unacceptable for a Prime member.,1,May 2025,Yes
+R015,Electronics,The seller refused my return request even though the item was defective. Amazon stepped in but the whole process took 25 days.,1,Jun 2025,Yes
+R016,Clothing,Returned a dress that was not true to colour. The return was simple and the refund was in my account within 2 days. Great service.,5,Jun 2025,Yes
+R017,Home & Kitchen,Tried to return a broken blender but the return option was greyed out in my account. Could not figure out why. Had to call customer service.,2,Jun 2025,Yes
+R018,Electronics,The laptop I returned was received by Amazon but I got a refund for a lower amount than I paid. No explanation was given.,1,Jul 2025,Yes
+R019,Clothing,Ordered two items and returned one. The refund only covered one item even though I returned both. Still chasing the second refund after 2 weeks.,2,Jul 2025,Yes
+R020,Books,Great experience returning a damaged book. Fast refund and helpful support agent. Would shop here again without hesitation.,5,Jul 2025,Yes
+R021,Electronics,My return was rejected because the seller claimed the item was not in its original condition. It absolutely was. Amazon sided with the seller.,1,Aug 2025,Yes
+R022,Home & Kitchen,The automated return system does not handle custom or oversized items well. I had to call three times before someone could process my return manually.,2,Aug 2025,Yes
+R023,Clothing,Return was simple and the refund was fast. However the return packaging instructions were confusing and I almost voided my return by mistake.,3,Aug 2025,Yes
+R024,Electronics,Waited 22 days for a refund on a returned phone. I had to escalate to a supervisor before anything happened. Completely unacceptable.,1,Sep 2025,Yes
+R025,Toys,Returned a toy that was missing parts. Support was responsive and the replacement arrived before my refund was even processed. Excellent service.,5,Sep 2025,Yes

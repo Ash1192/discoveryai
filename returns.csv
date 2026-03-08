@@ -1,0 +1,26 @@
+Return_ID,Product_Category,Return_Reason,Return_Status,Days_to_Refund,Refund_Amount,Seller_Type,Customer_Comment,Resolution_Rating
+RT001,Electronics,Defective product,Completed,18,249.99,Amazon,The screen was cracked on arrival. Refund took way too long for a Prime member.,2
+RT002,Clothing,Wrong item sent,Completed,5,59.99,Amazon,Received a completely different size. Return was easy but frustrating.,3
+RT003,Home & Kitchen,Item not as described,Completed,4,89.99,Amazon,Product looked nothing like the photos. Quick refund though.,4
+RT004,Electronics,Defective product,Pending,22,599.99,Third-party,Seller is not responding to my return request. Amazon needs to step in.,1
+RT005,Clothing,Wrong item sent,Completed,3,34.99,Amazon,Sent wrong colour. Easy fix. Happy with the speed.,5
+RT006,Electronics,Return label rejected,Completed,14,179.99,Amazon,The QR code kept failing at the drop-off kiosk. Had to regenerate it twice.,2
+RT007,Home & Kitchen,Defective product,Completed,7,129.99,Amazon,Stopped working after one week. Return was smooth.,4
+RT008,Clothing,Outside return window,Rejected,0,74.99,Third-party,The seller closed the return window before the item even arrived. Completely unfair.,1
+RT009,Electronics,Partial refund issued,Pending,19,449.99,Amazon,I returned the full kit but only got refunded for the main unit. Missing $120.,1
+RT010,Toys,Item not as described,Completed,3,29.99,Amazon,Missing pieces right out of the box. Fast return and replacement.,5
+RT011,Electronics,Seller refused return,Pending,25,899.99,Third-party,Seller claims I damaged the item. I did not. Dispute ongoing for 3 weeks.,1
+RT012,Clothing,Size chart incorrect,Completed,6,49.99,Amazon,The size chart on the listing was wrong. Returned without issues.,3
+RT013,Home & Kitchen,Return option unavailable,Pending,0,199.99,Amazon,The return button is greyed out in my account. Cannot initiate the return online.,2
+RT014,Electronics,Wrong item sent,Completed,5,329.99,Amazon,Received a completely different product. Sorted quickly.,4
+RT015,Clothing,Colour not as described,Completed,2,44.99,Amazon,The dress was a completely different shade from the photos. Fast refund.,5
+RT016,Electronics,Defective product,Completed,21,749.99,Third-party,Third-party seller took 3 weeks to approve the return. Awful experience.,1
+RT017,Books,Wrong edition sent,Completed,3,19.99,Amazon,Got the wrong edition. Return was smooth and fast.,5
+RT018,Home & Kitchen,Defective product,Completed,9,159.99,Amazon,The blender broke after one use. Return handled quickly.,4
+RT019,Electronics,Refund amount incorrect,Pending,22,1099.99,Amazon,Received $200 less than the purchase price with no explanation.,1
+RT020,Clothing,Sizing issue,Completed,4,39.99,Amazon,Fit was way off. Return was straightforward.,4
+RT021,Electronics,Return rejected by seller,Pending,28,479.99,Third-party,Seller says the return window passed but the item arrived late due to shipping.,1
+RT022,Toys,Damaged on arrival,Completed,3,54.99,Amazon,Box was crushed. Replacement sent immediately.,5
+RT023,Home & Kitchen,Oversized item return,Completed,12,289.99,Amazon,Return logistics for large items need improvement. Too many calls required.,2
+RT024,Electronics,Refund delayed,Completed,24,219.99,Amazon,Return was received 2 weeks ago but refund only just arrived.,2
+RT025,Clothing,Return packaging confusion,Completed,5,64.99,Amazon,Instructions were unclear and I nearly voided my return by mistake.,3
