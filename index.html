@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DiscoveryAI — Amazon PM Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a1628;
+    --navy-mid: #0f2040;
+    --orange: #ff9900;
+    --orange-glow: rgba(255,153,0,0.15);
+    --white: #ffffff;
+    --text-primary: #e8eaed;
+    --text-secondary: #8fa3bf;
+    --text-muted: #4a6280;
+    --border: rgba(255,153,0,0.2);
+    --border-subtle: rgba(255,255,255,0.06);
+    --success: #00c851;
+    --card-bg: rgba(15,32,64,0.8);
+    --input-bg: rgba(10,22,40,0.9);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--navy); color: var(--text-primary); font-family: 'Inter', sans-serif; min-height: 100vh; overflow-x: hidden; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(255,153,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,153,0,0.03) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
+  body::after { content: ''; position: fixed; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 30% 20%, rgba(255,153,0,0.04) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(10,80,180,0.08) 0%, transparent 50%); pointer-events: none; z-index: 0; }
+  header { position: relative; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 18px 40px; background: rgba(10,22,40,0.95); border-bottom: 1px solid var(--border); backdrop-filter: blur(20px); }
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo-icon { width: 36px; height: 36px; background: var(--orange); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 18px; color: var(--navy); }
+  .logo-text { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 22px; letter-spacing: 1px; color: var(--white); }
+  .logo-text span { color: var(--orange); }
+  .status-indicator { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary); font-family: 'IBM Plex Mono', monospace; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); box-shadow: 0 0 8px var(--success); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(0.85); } }
+  .main { position: relative; z-index: 1; max-width: 1000px; margin: 0 auto; padding: 40px 24px 80px; }
+  .hero { text-align: center; margin-bottom: 40px; animation: fadeUp 0.8s ease both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  .hero-label { display: inline-block; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--orange); border: 1px solid var(--border); padding: 6px 16px; border-radius: 20px; margin-bottom: 20px; background: var(--orange-glow); }
+  .hero h1 { font-family: 'Rajdhani', sans-serif; font-size: clamp(32px, 5vw, 52px); font-weight: 700; line-height: 1.1; color: var(--white); margin-bottom: 16px; letter-spacing: 1px; }
+  .hero h1 span { color: var(--orange); }
+  .hero p { font-size: 16px; color: var(--text-secondary); max-width: 560px; margin: 0 auto; line-height: 1.6; }
+  .metrics-bar { display: flex; gap: 24px; justify-content: center; margin-bottom: 36px; animation: fadeUp 0.8s 0.1s ease both; }
+  .metric { background: var(--card-bg); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 16px 48px; text-align: center; backdrop-filter: blur(20px); }
+  .metric-value { font-family: 'Rajdhani', sans-serif; font-size: 28px; font-weight: 700; color: var(--orange); }
+  .metric-label { font-size: 11px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+  .card { background: var(--card-bg); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 28px 32px; margin-bottom: 24px; backdrop-filter: blur(20px); animation: fadeUp 0.8s ease both; }
+  .section-title { font-family: 'Rajdhani', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--orange); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .section-title::before { content: ''; width: 3px; height: 14px; background: var(--orange); border-radius: 2px; }
+  input[type="password"] { width: 100%; background: var(--input-bg); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 12px 16px; color: var(--text-primary); font-family: 'IBM Plex Mono', monospace; font-size: 13px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+  input:focus { border-color: var(--orange); box-shadow: 0 0 0 3px var(--orange-glow); }
+  .input-row { display: flex; gap: 12px; align-items: center; }
+  .btn { padding: 12px 24px; border-radius: 10px; font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 14px; letter-spacing: 1px; cursor: pointer; border: none; transition: all 0.2s; white-space: nowrap; display: inline-flex; align-items: center; gap: 8px; }
+  .btn-primary { background: var(--orange); color: var(--navy); }
+  .btn-primary:hover { background: #ffad33; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(255,153,0,0.3); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+  .btn-ghost { background: rgba(255,153,0,0.1); color: var(--orange); border: 1px solid var(--border); }
+  .btn-ghost:hover { background: rgba(255,153,0,0.2); }
+  .btn-secondary { background: transparent; color: var(--text-secondary); border: 1px solid var(--border-subtle); }
+  .btn-secondary:hover { border-color: var(--orange); color: var(--orange); }
+  .btn-run { padding: 18px 48px; background: var(--orange); color: var(--navy); border: none; border-radius: 14px; font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 18px; letter-spacing: 2px; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 12px; box-shadow: 0 4px 32px rgba(255,153,0,0.25); text-transform: uppercase; }
+  .btn-run:hover { background: #ffad33; transform: translateY(-2px); box-shadow: 0 8px 40px rgba(255,153,0,0.4); }
+  .btn-run:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+  .progress-wrap { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 28px 32px; margin-bottom: 24px; backdrop-filter: blur(20px); animation: fadeUp 0.5s ease both; }
+  .progress-steps { display: flex; flex-direction: column; gap: 14px; }
+  .progress-step { display: flex; align-items: center; gap: 14px; font-size: 13px; color: var(--text-muted); transition: color 0.3s; }
+  .progress-step.active { color: var(--text-primary); }
+  .progress-step.done { color: var(--success); }
+  .step-icon { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; transition: all 0.3s; }
+  .progress-step.active .step-icon { border-color: var(--orange); background: var(--orange-glow); color: var(--orange); }
+  .progress-step.done .step-icon { border-color: var(--success); background: rgba(0,200,81,0.1); color: var(--success); }
+  .step-spinner { width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--orange); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .insights-grid { display: grid; gap: 12px; }
+  .insight-card { background: rgba(10,22,40,0.6); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px 24px; cursor: pointer; transition: all 0.25s; display: grid; grid-template-columns: 48px 1fr auto; align-items: center; gap: 16px; }
+  .insight-card:hover { border-color: var(--orange); transform: translateX(4px); box-shadow: 0 4px 24px var(--orange-glow); }
+  .insight-card.selected { border-color: var(--orange); background: rgba(255,153,0,0.05); }
+  .insight-number { width: 48px; height: 48px; background: var(--orange-glow); border: 1px solid var(--border); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: 'Rajdhani', sans-serif; font-size: 22px; font-weight: 700; color: var(--orange); }
+  .insight-body h4 { font-size: 15px; font-weight: 600; color: var(--white); margin-bottom: 6px; }
+  .insight-meta { display: flex; gap: 10px; flex-wrap: wrap; }
+  .tag { font-family: 'IBM Plex Mono', monospace; font-size: 10px; padding: 3px 8px; border-radius: 4px; letter-spacing: 1px; }
+  .tag-source { background: rgba(255,153,0,0.15); color: var(--orange); border: 1px solid rgba(255,153,0,0.3); }
+  .tag-impact { background: rgba(0,200,81,0.1); color: #00c851; border: 1px solid rgba(0,200,81,0.2); }
+  .tag-freq { background: rgba(100,150,255,0.1); color: #6496ff; border: 1px solid rgba(100,150,255,0.2); }
+  .insight-arrow { color: var(--text-muted); font-size: 18px; transition: color 0.2s; }
+  .insight-card:hover .insight-arrow { color: var(--orange); }
+  .prfaq-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; backdrop-filter: blur(20px); }
+  .prfaq-toolbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 24px; background: rgba(255,153,0,0.05); border-bottom: 1px solid var(--border); }
+  .prfaq-title { font-family: 'Rajdhani', sans-serif; font-size: 16px; font-weight: 600; color: var(--orange); letter-spacing: 1px; text-transform: uppercase; }
+  .toolbar-actions { display: flex; gap: 8px; }
+  .prfaq-content { padding: 32px; line-height: 1.8; font-size: 14px; color: var(--text-primary); white-space: pre-wrap; max-height: 600px; overflow-y: auto; }
+  .prfaq-content::-webkit-scrollbar { width: 4px; }
+  .prfaq-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .loading { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 48px; color: var(--text-secondary); font-size: 14px; }
+  .spinner-lg { width: 24px; height: 24px; border: 2px solid var(--border); border-top-color: var(--orange); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  .toast { position: fixed; bottom: 32px; right: 32px; background: var(--navy-mid); border: 1px solid var(--border); border-radius: 10px; padding: 14px 20px; font-size: 13px; color: var(--text-primary); z-index: 1000; display: flex; align-items: center; gap: 10px; transform: translateY(100px); opacity: 0; transition: all 0.3s; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .divider { height: 1px; background: var(--border-subtle); margin: 28px 0; }
+  .hidden { display: none !important; }
+  .hint-text { font-size: 12px; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; margin-top: 8px; }
+  .live-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(0,200,81,0.1); border: 1px solid rgba(0,200,81,0.25); border-radius: 20px; padding: 4px 12px; font-size: 11px; color: #00c851; font-family: 'IBM Plex Mono', monospace; letter-spacing: 1px; }
+  .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #00c851; animation: pulse 1.5s infinite; }
+  .error-box { background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.3); border-radius: 10px; padding: 16px 20px; font-size: 13px; color: #ff6b6b; font-family: 'IBM Plex Mono', monospace; line-height: 1.6; }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <div class="logo-icon">DA</div>
+    <div>
+      <div class="logo-text">Discovery<span>AI</span></div>
+      <div style="font-size:10px;color:var(--text-muted);letter-spacing:2px;font-family:'IBM Plex Mono',monospace;">AMAZON INTERNAL</div>
+    </div>
+  </div>
+  <div class="status-indicator">
+    <div class="status-dot"></div>
+    <span id="statusText">READY</span>
+  </div>
+</header>
+<div class="main">
+  <div class="hero">
+    <div class="hero-label">Working Backwards · AI-Powered Discovery</div>
+    <h1>Turn Customer Data Into<br><span>Amazon PRFAQs</span></h1>
+    <p>One click triggers your N8N workflow, analyses 3 data sources, and delivers cross-validated insights ready for PRFAQ generation.</p>
+  </div>
+  <div class="metrics-bar">
+    <div class="metric"><div class="metric-value">3</div><div class="metric-label">Data Sources</div></div>
+    <div class="metric"><div class="metric-value">&lt;3m</div><div class="metric-label">To PRFAQ</div></div>
+  </div>
+  <div class="card" style="animation-delay:0.1s">
+    <div class="section-title">Step 1 — Configure Gemini API Key</div>
+    <div class="input-row">
+      <input type="password" id="apiKey" placeholder="Paste your Gemini API key — AIzaSy..." />
+      <button class="btn btn-primary" onclick="saveApiKey()">✓ Save</button>
+    </div>
+    <p class="hint-text">Stored locally in your browser only — never sent anywhere except Gemini API.</p>
+  </div>
+  <div class="card" style="animation-delay:0.15s">
+    <div class="section-title">Step 2 — Run Analysis</div>
+    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:20px;">Click the button below to trigger your N8N workflow. It will automatically fetch your 3 CSV files, merge 75 rows, run AI synthesis across all sources, and return 5 cross-validated insight themes.</p>
+    <div style="text-align:center;">
+      <button class="btn-run" id="runBtn" onclick="runAnalysis()">
+        <span id="runBtnIcon">⚡</span>
+        <span id="runBtnText">Run Discovery Analysis</span>
+      </button>
+    </div>
+  </div>
+  <div id="progressWrap" class="progress-wrap hidden">
+    <div class="section-title">Analysis in Progress</div>
+    <div class="progress-steps">
+      <div class="progress-step" id="step-fetch"><div class="step-icon" id="icon-fetch">1</div><span>Fetching 3 CSV files from GitHub...</span></div>
+      <div class="progress-step" id="step-merge"><div class="step-icon" id="icon-merge">2</div><span>Parsing and merging 75 rows across all sources...</span></div>
+      <div class="progress-step" id="step-ai"><div class="step-icon" id="icon-ai">3</div><span>Gemini AI synthesising cross-validated insight themes...</span></div>
+      <div class="progress-step" id="step-done"><div class="step-icon" id="icon-done">4</div><span>Preparing insights for PRFAQ generation...</span></div>
+    </div>
+  </div>
+  <div id="insightsSection" class="hidden">
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+        <div class="section-title" style="margin-bottom:0">Step 3 — Select an Insight Theme</div>
+        <div class="live-badge"><div class="live-dot"></div><span>LIVE FROM N8N</span></div>
+      </div>
+      <div id="insightsGrid" class="insights-grid"></div>
+      <div style="margin-top:16px;text-align:right;">
+        <button class="btn btn-secondary" onclick="resetAll()">↺ Run New Analysis</button>
+      </div>
+    </div>
+  </div>
+  <div id="prfaqSection" class="hidden">
+    <div class="divider"></div>
+    <div class="prfaq-card">
+      <div class="prfaq-toolbar">
+        <div class="prfaq-title">⬡ Amazon Working Backwards PRFAQ</div>
+        <div class="toolbar-actions">
+          <button class="btn btn-ghost" onclick="copyPRFAQ()">📋 Copy</button>
+          <button class="btn btn-primary" onclick="downloadWord()">⬇ Download .doc</button>
+        </div>
+      </div>
+      <div id="prfaqContent" class="prfaq-content"></div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"><span id="toastMsg">Done!</span></div>
+<script>
+  const N8N_WEBHOOK_URL = 'https://ashwin92.app.n8n.cloud/webhook/Discovery%20AI';
+  let currentInsights = '', currentPRFAQ = '', selectedTheme = '';
+
+  window.onload = () => {
+    if (localStorage.getItem('gemini_api_key')) document.getElementById('apiKey').value = '●'.repeat(20);
+  };
+
+  function saveApiKey() {
+    const key = document.getElementById('apiKey').value.trim();
+    if (!key || !key.startsWith('AIza')) { showToast('⚠ Please enter a valid Gemini API key'); return; }
+    localStorage.setItem('gemini_api_key', key);
+    showToast('✓ API key saved!');
+    document.getElementById('apiKey').value = '●'.repeat(20);
+  }
+
+  function getApiKey() { return localStorage.getItem('gemini_api_key') || ''; }
+
+  async function runAnalysis() {
+    const apiKey = getApiKey();
+    if (!apiKey) { showToast('⚠ Please save your Gemini API key first'); return; }
+    const runBtn = document.getElementById('runBtn');
+    runBtn.disabled = true;
+    document.getElementById('runBtnIcon').textContent = '';
+    document.getElementById('runBtnText').textContent = 'Running...';
+    document.getElementById('statusText').textContent = 'ANALYSING...';
+    document.getElementById('progressWrap').classList.remove('hidden');
+    document.getElementById('insightsSection').classList.add('hidden');
+    document.getElementById('prfaqSection').classList.add('hidden');
+    animateStep('fetch', 0);
+    animateStep('merge', 4000);
+    animateStep('ai', 8000);
+    try {
+      const response = await fetch(N8N_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ trigger: 'discoveryai', timestamp: new Date().toISOString() })
+      });
+      if (!response.ok) throw new Error(`N8N responded with status ${response.status}`);
+      const text = await response.text();
+      if (!text || text.trim().length < 50) throw new Error('N8N returned empty response — check workflow is published and active');
+      currentInsights = text;
+      completeStep('fetch'); completeStep('merge'); completeStep('ai');
+      animateStep('done', 0);
+      setTimeout(() => completeStep('done'), 800);
+      setTimeout(() => {
+        const themes = parseThemes(text);
+        if (themes.length === 0) throw new Error('Could not parse insight themes from N8N response');
+        renderInsights(themes);
+        document.getElementById('insightsSection').classList.remove('hidden');
+        document.getElementById('progressWrap').classList.add('hidden');
+        document.getElementById('statusText').textContent = 'INSIGHTS READY ✓';
+        runBtn.disabled = false;
+        document.getElementById('runBtnIcon').textContent = '⚡';
+        document.getElementById('runBtnText').textContent = 'Run Discovery Analysis';
+        showToast('✓ Analysis complete — 5 insights ready!');
+        document.getElementById('insightsSection').scrollIntoView({ behavior: 'smooth' });
+      }, 1200);
+    } catch (err) {
+      document.getElementById('progressWrap').innerHTML = `<div class="error-box">⚠ Error: ${err.message}<br><br>Possible fixes:<br>• Make sure your N8N workflow is Published and Active<br>• Check the webhook URL is correct<br>• Try clicking "Listen for test event" in N8N Webhook node first</div>`;
+      document.getElementById('statusText').textContent = 'ERROR';
+      runBtn.disabled = false;
+      document.getElementById('runBtnIcon').textContent = '⚡';
+      document.getElementById('runBtnText').textContent = 'Run Discovery Analysis';
+      showToast('⚠ Error — check N8N workflow is active');
+    }
+  }
+
+  function animateStep(name, delay) {
+    setTimeout(() => {
+      const step = document.getElementById(`step-${name}`);
+      const icon = document.getElementById(`icon-${name}`);
+      if (step && icon) { step.classList.add('active'); icon.innerHTML = '<div class="step-spinner"></div>'; }
+    }, delay);
+  }
+
+  function completeStep(name) {
+    const step = document.getElementById(`step-${name}`);
+    const icon = document.getElementById(`icon-${name}`);
+    if (step && icon) { step.classList.remove('active'); step.classList.add('done'); icon.textContent = '✓'; }
+  }
+
+  function parseThemes(text) {
+    const themes = [];
+    const lines = text.split('\n');
+    let currentTheme = null;
+    lines.forEach(line => {
+      line = line.trim();
+      const m = line.match(/^\*{0,2}(\d+)\.\s+(?:Theme Title:\s*)?\*{0,2}(.+?)\*{0,2}$/i);
+      if (m) { if (currentTheme) themes.push(currentTheme); currentTheme = { number: m[1], title: m[2].replace(/\*+/g,'').trim(), sources:'', impact:'', frequency:'' }; }
+      if (currentTheme) {
+        if (line.match(/source\s*tags?/i)) { const s = line.match(/(\[R\]|\[Re\]|\[S\])/g); if (s) currentTheme.sources = s.join(' '); }
+        if (line.match(/impact\s*score/i)) { const s = line.match(/:\s*(\d+)/); if (s) currentTheme.impact = s[1]; }
+        if (line.match(/frequency/i)) { const s = line.match(/([\d.]+%)/); if (s) currentTheme.frequency = s[1]; }
+      }
+    });
+    if (currentTheme) themes.push(currentTheme);
+    if (themes.length === 0) {
+      const fb = text.match(/\d+\.\s+.+/g);
+      if (fb) fb.slice(0,5).forEach((t,i) => { const title = t.replace(/^\d+\.\s+/,'').replace(/\*+/g,'').trim(); if (title.length > 5) themes.push({ number: String(i+1), title: title.substring(0,80), sources:'[R] [Re] [S]', impact:'', frequency:'' }); });
+    }
+    return themes;
+  }
+
+  function renderInsights(themes) {
+    const grid = document.getElementById('insightsGrid');
+    grid.innerHTML = '';
+    themes.forEach(theme => {
+      const card = document.createElement('div');
+      card.className = 'insight-card';
+      card.onclick = () => generatePRFAQ(theme, card);
+      card.innerHTML = `<div class="insight-number">${theme.number}</div><div class="insight-body"><h4>${theme.title}</h4><div class="insight-meta"><span class="tag tag-source">${theme.sources || '[R] [Re] [S]'}</span>${theme.impact ? `<span class="tag tag-impact">IMPACT ${theme.impact}/10</span>` : ''}${theme.frequency ? `<span class="tag tag-freq">${theme.frequency}</span>` : ''}</div></div><div class="insight-arrow">→</div>`;
+      grid.appendChild(card);
+    });
+  }
+
+  async function generatePRFAQ(theme, cardEl) {
+    const apiKey = getApiKey();
+    if (!apiKey) { showToast('⚠ Please enter your Gemini API key first'); return; }
+    document.querySelectorAll('.insight-card').forEach(c => c.classList.remove('selected'));
+    cardEl.classList.add('selected');
+    selectedTheme = theme.title;
+    document.getElementById('prfaqSection').classList.remove('hidden');
+    document.getElementById('prfaqContent').innerHTML = `<div class="loading"><div class="spinner-lg"></div><span>Generating PRFAQ for "${theme.title}"...</span></div>`;
+    setTimeout(() => document.getElementById('prfaqSection').scrollIntoView({ behavior: 'smooth' }), 100);
+    const prompt = `You are a Senior Amazon Product Manager expert in Working Backwards methodology.\n\nBased on these cross-validated customer insights from 3 independent data sources:\n\nSELECTED THEME: ${theme.title}\n${theme.sources ? `Source Validation: ${theme.sources}` : ''}\n${theme.impact ? `Impact Score: ${theme.impact}/10` : ''}\n${theme.frequency ? `Frequency: ${theme.frequency}` : ''}\n\nFULL INSIGHT CONTEXT:\n${currentInsights}\n\nGenerate a complete Amazon Working Backwards PRFAQ with EXACTLY these sections:\n\nHEADLINE\n[One sentence. Customer benefit focused. Does not start with "We" or "Amazon".]\n\nSUB-HEADLINE\n[One sentence expanding the headline benefit with specific detail.]\n\nCUSTOMER PROBLEM\n[Exactly 3 sentences. Reference [R][Re][S] evidence with specific quotes from the data.]\n\nAMAZON SOLUTION\n[Exactly 4 sentences. Each tied to a different insight. Specific and measurable.]\n\nCUSTOMER QUOTE\n["First-person quote from a satisfied customer after this solution exists."]\n\nFREQUENTLY ASKED QUESTIONS\n\nQ1: How does this work for customers?\nA1: [Specific answer]\n\nQ2: Does this apply to third-party seller orders?\nA2: [Specific answer]\n\nQ3: What happens if the solution fails or is unavailable?\nA3: [Specific answer]\n\nQ4: When will this be available to customers?\nA4: [Specific answer with timeline]\n\nQ5: How will Amazon measure success?\nA5: [3 specific measurable KPIs]\n\nUse Amazon Leadership Principles language. Every claim must be tied to evidence.`;
+    try {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.5, maxOutputTokens: 2000 } }) });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message);
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!text) throw new Error('No response from Gemini');
+      currentPRFAQ = text;
+      document.getElementById('prfaqContent').innerText = text;
+      showToast('✓ PRFAQ generated successfully!');
+    } catch (err) {
+      document.getElementById('prfaqContent').innerHTML = `<div class="error-box">⚠ Error: ${err.message}<br><br>Please check your API key and try again.</div>`;
+      showToast('⚠ Error — check your API key');
+    }
+  }
+
+  function copyPRFAQ() {
+    if (!currentPRFAQ) { showToast('⚠ Generate a PRFAQ first'); return; }
+    navigator.clipboard.writeText(currentPRFAQ).then(() => showToast('✓ Copied to clipboard!'));
+  }
+
+  function downloadWord() {
+    if (!currentPRFAQ) { showToast('⚠ Generate a PRFAQ first'); return; }
+    const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><style>body{font-family:Calibri,sans-serif;font-size:11pt;color:#1a1a1a;margin:2cm}h1{color:#0a1628;font-size:18pt;border-bottom:3px solid #ff9900;padding-bottom:8px}h2{color:#cc7700;font-size:13pt;margin-top:20px}p{line-height:1.6;margin-bottom:8px}.meta{color:#666;font-size:9pt;margin-bottom:24px}</style></head><body><h1>DiscoveryAI — Amazon Working Backwards PRFAQ</h1><p class="meta">Theme: ${selectedTheme} | Generated: ${new Date().toLocaleDateString()}</p>${currentPRFAQ.split('\n').map(line => { if (line.match(/^(HEADLINE|SUB-HEADLINE|CUSTOMER PROBLEM|AMAZON SOLUTION|CUSTOMER QUOTE|FREQUENTLY ASKED QUESTIONS|Q\d+:)/)) return `<h2>${line}</h2>`; return line ? `<p>${line}</p>` : '<br>'; }).join('')}</body></html>`;
+    const blob = new Blob([html], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `PRFAQ_${selectedTheme.replace(/[^a-z0-9]/gi,'_').substring(0,40)}.doc`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('✓ Downloading...');
+  }
+
+  function resetAll() {
+    document.getElementById('insightsSection').classList.add('hidden');
+    document.getElementById('prfaqSection').classList.add('hidden');
+    document.getElementById('progressWrap').classList.add('hidden');
+    document.getElementById('progressWrap').innerHTML = `<div class="section-title">Analysis in Progress</div><div class="progress-steps"><div class="progress-step" id="step-fetch"><div class="step-icon" id="icon-fetch">1</div><span>Fetching 3 CSV files from GitHub...</span></div><div class="progress-step" id="step-merge"><div class="step-icon" id="icon-merge">2</div><span>Parsing and merging 75 rows across all sources...</span></div><div class="progress-step" id="step-ai"><div class="step-icon" id="icon-ai">3</div><span>Gemini AI synthesising cross-validated insight themes...</span></div><div class="progress-step" id="step-done"><div class="step-icon" id="icon-done">4</div><span>Preparing insights for PRFAQ generation...</span></div></div>`;
+    currentInsights = ''; currentPRFAQ = ''; selectedTheme = '';
+    document.getElementById('statusText').textContent = 'READY';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toastMsg').textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+</script>
+</body>
+</html>
