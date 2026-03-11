@@ -149,7 +149,7 @@
     <div class="section-title">Analysis in Progress</div>
     <div class="progress-steps">
       <div class="progress-step" id="step-fetch"><div class="step-icon" id="icon-fetch">1</div><span>Fetching 3 CSV files from GitHub...</span></div>
-      <div class="progress-step" id="step-merge"><div class="step-icon" id="icon-merge">2</div><span>Parsing and merging 75 rows across all sources...</span></div>
+      <div class="progress-step" id="step-merge"><div class="step-icon" id="icon-merge">2</div><span>Parsing and merging all rows across all sources...</span></div>
       <div class="progress-step" id="step-ai"><div class="step-icon" id="icon-ai">3</div><span>Gemini AI synthesising cross-validated insight themes...</span></div>
       <div class="progress-step" id="step-done"><div class="step-icon" id="icon-done">4</div><span>Preparing insights for PRFAQ generation...</span></div>
     </div>
@@ -388,7 +388,7 @@
     document.getElementById('insightsSection').classList.add('hidden');
     document.getElementById('prfaqSection').classList.add('hidden');
     document.getElementById('progressWrap').classList.add('hidden');
-    document.getElementById('progressWrap').innerHTML = '<div class="section-title">Analysis in Progress</div><div class="progress-steps"><div class="progress-step" id="step-fetch"><div class="step-icon" id="icon-fetch">1</div><span>Fetching 3 CSV files from GitHub...</span></div><div class="progress-step" id="step-merge"><div class="step-icon" id="icon-merge">2</div><span>Parsing and merging 75 rows across all sources...</span></div><div class="progress-step" id="step-ai"><div class="step-icon" id="icon-ai">3</div><span>Gemini AI synthesising cross-validated insight themes...</span></div><div class="progress-step" id="step-done"><div class="step-icon" id="icon-done">4</div><span>Preparing insights for PRFAQ generation...</span></div></div>';
+    document.getElementById('progressWrap').innerHTML = '<div class="section-title">Analysis in Progress</div><div class="progress-steps"><div class="progress-step" id="step-fetch"><div class="step-icon" id="icon-fetch">1</div><span>Fetching 3 CSV files from GitHub...</span></div><div class="progress-step" id="step-merge"><div class="step-icon" id="icon-merge">2</div><span>Parsing and merging all rows across all sources...</span></div><div class="progress-step" id="step-ai"><div class="step-icon" id="icon-ai">3</div><span>Gemini AI synthesising cross-validated insight themes...</span></div><div class="progress-step" id="step-done"><div class="step-icon" id="icon-done">4</div><span>Preparing insights for PRFAQ generation...</span></div></div>';
     currentInsights = ''; currentPRFAQ = ''; selectedTheme = '';
     document.getElementById('statusText').textContent = 'READY';
     window.scrollTo({ top: 0, behavior: 'smooth' });
