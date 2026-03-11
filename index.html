@@ -185,7 +185,7 @@
   const N8N_WEBHOOK_URL = 'https://ashwin92.app.n8n.cloud/webhook/Discovery%20AI';
   let currentInsights = '', currentPRFAQ = '', selectedTheme = '';
 
-  window.onload = () => {
+  window.onload = function() {
     if (localStorage.getItem('gemini_api_key')) document.getElementById('apiKey').value = '●'.repeat(20);
   };
 
@@ -219,14 +219,14 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ trigger: 'discoveryai', timestamp: new Date().toISOString() })
       });
-      if (!response.ok) throw new Error(`N8N responded with status ${response.status}`);
+      if (!response.ok) throw new Error('N8N responded with status ' + response.status);
       const text = await response.text();
       if (!text || text.trim().length < 50) throw new Error('N8N returned empty response — check workflow is published and active');
       currentInsights = text;
       completeStep('fetch'); completeStep('merge'); completeStep('ai');
       animateStep('done', 0);
-      setTimeout(() => completeStep('done'), 800);
-      setTimeout(() => {
+      setTimeout(function() { completeStep('done'); }, 800);
+      setTimeout(function() {
         const themes = parseThemes(text);
         if (themes.length === 0) throw new Error('Could not parse insight themes from N8N response');
         renderInsights(themes);
@@ -240,7 +240,7 @@
         document.getElementById('insightsSection').scrollIntoView({ behavior: 'smooth' });
       }, 1200);
     } catch (err) {
-      document.getElementById('progressWrap').innerHTML = `<div class="error-box">⚠ Error: ${err.message}<br><br>Possible fixes:<br>• Make sure your N8N workflow is Published and Active<br>• Check the webhook URL is correct<br>• Try clicking "Listen for test event" in N8N Webhook node first</div>`;
+      document.getElementById('progressWrap').innerHTML = '<div class="error-box">⚠ Error: ' + err.message + '<br><br>Possible fixes:<br>• Make sure your N8N workflow is Published and Active<br>• Check the webhook URL is correct<br>• Try clicking Listen for test event in N8N first</div>';
       document.getElementById('statusText').textContent = 'ERROR';
       runBtn.disabled = false;
       document.getElementById('runBtnIcon').textContent = '⚡';
@@ -250,37 +250,48 @@
   }
 
   function animateStep(name, delay) {
-    setTimeout(() => {
-      const step = document.getElementById(`step-${name}`);
-      const icon = document.getElementById(`icon-${name}`);
+    setTimeout(function() {
+      const step = document.getElementById('step-' + name);
+      const icon = document.getElementById('icon-' + name);
       if (step && icon) { step.classList.add('active'); icon.innerHTML = '<div class="step-spinner"></div>'; }
     }, delay);
   }
 
   function completeStep(name) {
-    const step = document.getElementById(`step-${name}`);
-    const icon = document.getElementById(`icon-${name}`);
+    const step = document.getElementById('step-' + name);
+    const icon = document.getElementById('icon-' + name);
     if (step && icon) { step.classList.remove('active'); step.classList.add('done'); icon.textContent = '✓'; }
   }
 
   function parseThemes(text) {
     const themes = [];
     const lines = text.split('\n');
-    let currentTheme = null;
-    lines.forEach(line => {
-      line = line.trim();
-      const m = line.match(/^\*{0,2}(\d+)\.\s+(?:Theme Title:\s*)?\*{0,2}(.+?)\*{0,2}$/i);
-      if (m) { if (currentTheme) themes.push(currentTheme); currentTheme = { number: m[1], title: m[2].replace(/\*+/g,'').trim(), sources:'', impact:'', frequency:'' }; }
-      if (currentTheme) {
-        if (line.match(/source\s*tags?/i)) { const s = line.match(/(\[R\]|\[Re\]|\[S\])/g); if (s) currentTheme.sources = s.join(' '); }
-        if (line.match(/impact\s*score/i)) { const s = line.match(/:\s*(\d+)/); if (s) currentTheme.impact = s[1]; }
-        if (line.match(/frequency/i)) { const s = line.match(/([\d.]+%)/); if (s) currentTheme.frequency = s[1]; }
+    let current = null;
+    lines.forEach(function(line) {
+      const c = line.trim();
+      const m = c.match(/^\*\*(\d+)\.\s+(.+?)\*\*$/) ||
+                c.match(/^#{1,3}\s+\*{0,2}(\d+)\.\s+\*{0,2}(.+?)\*{0,2}$/) ||
+                c.match(/^(\d+)\.\s+\*{0,2}(.+?)\*{0,2}$/);
+      if (m) {
+        const title = m[2].replace(/\*+/g, '').trim();
+        if (title.length > 5 && !title.match(/^(Source|Frequency|Impact|Evidence|Recommendation|Tag)/i)) {
+          if (current) themes.push(current);
+          current = { number: m[1], title: title, sources: '', impact: '', frequency: '' };
+        }
+      }
+      if (current) {
+        if (c.match(/source\s*tags?/i)) { const s = c.match(/(\[R\]|\[Re\]|\[S\])/g); if (s) current.sources = s.join(' '); }
+        if (c.match(/impact\s*score/i)) { const s = c.match(/(\d+)\/10/) || c.match(/:\s*\*{0,2}(\d+)/); if (s) current.impact = s[1]; }
+        if (c.match(/^[\*\s]*frequency/i)) { const s = c.match(/([\d.]+%)/); if (s) current.frequency = s[1]; }
       }
     });
-    if (currentTheme) themes.push(currentTheme);
+    if (current) themes.push(current);
     if (themes.length === 0) {
-      const fb = text.match(/\d+\.\s+.+/g);
-      if (fb) fb.slice(0,5).forEach((t,i) => { const title = t.replace(/^\d+\.\s+/,'').replace(/\*+/g,'').trim(); if (title.length > 5) themes.push({ number: String(i+1), title: title.substring(0,80), sources:'[R] [Re] [S]', impact:'', frequency:'' }); });
+      const fb = text.match(/\*\*\d+\.\s+.+?\*\*/g) || text.match(/\d+\.\s+.+/g);
+      if (fb) fb.slice(0, 5).forEach(function(t, i) {
+        const title = t.replace(/\*+/g, '').replace(/^\d+\.\s+/, '').trim();
+        if (title.length > 5) themes.push({ number: String(i + 1), title: title.substring(0, 80), sources: '[R] [Re] [S]', impact: '', frequency: '' });
+      });
     }
     return themes;
   }
@@ -288,11 +299,17 @@
   function renderInsights(themes) {
     const grid = document.getElementById('insightsGrid');
     grid.innerHTML = '';
-    themes.forEach(theme => {
+    themes.forEach(function(theme) {
       const card = document.createElement('div');
       card.className = 'insight-card';
-      card.onclick = () => generatePRFAQ(theme, card);
-      card.innerHTML = `<div class="insight-number">${theme.number}</div><div class="insight-body"><h4>${theme.title}</h4><div class="insight-meta"><span class="tag tag-source">${theme.sources || '[R] [Re] [S]'}</span>${theme.impact ? `<span class="tag tag-impact">IMPACT ${theme.impact}/10</span>` : ''}${theme.frequency ? `<span class="tag tag-freq">${theme.frequency}</span>` : ''}</div></div><div class="insight-arrow">→</div>`;
+      card.onclick = function() { generatePRFAQ(theme, card); };
+      card.innerHTML = '<div class="insight-number">' + theme.number + '</div>' +
+        '<div class="insight-body"><h4>' + theme.title + '</h4>' +
+        '<div class="insight-meta">' +
+        '<span class="tag tag-source">' + (theme.sources || '[R] [Re] [S]') + '</span>' +
+        (theme.impact ? '<span class="tag tag-impact">IMPACT ' + theme.impact + '/10</span>' : '') +
+        (theme.frequency ? '<span class="tag tag-freq">' + theme.frequency + '</span>' : '') +
+        '</div></div><div class="insight-arrow">→</div>';
       grid.appendChild(card);
     });
   }
@@ -300,41 +317,68 @@
   async function generatePRFAQ(theme, cardEl) {
     const apiKey = getApiKey();
     if (!apiKey) { showToast('⚠ Please enter your Gemini API key first'); return; }
-    document.querySelectorAll('.insight-card').forEach(c => c.classList.remove('selected'));
+    document.querySelectorAll('.insight-card').forEach(function(c) { c.classList.remove('selected'); });
     cardEl.classList.add('selected');
     selectedTheme = theme.title;
     document.getElementById('prfaqSection').classList.remove('hidden');
-    document.getElementById('prfaqContent').innerHTML = `<div class="loading"><div class="spinner-lg"></div><span>Generating PRFAQ for "${theme.title}"...</span></div>`;
-    setTimeout(() => document.getElementById('prfaqSection').scrollIntoView({ behavior: 'smooth' }), 100);
-    const prompt = `You are a Senior Amazon Product Manager expert in Working Backwards methodology.\n\nBased on these cross-validated customer insights from 3 independent data sources:\n\nSELECTED THEME: ${theme.title}\n${theme.sources ? `Source Validation: ${theme.sources}` : ''}\n${theme.impact ? `Impact Score: ${theme.impact}/10` : ''}\n${theme.frequency ? `Frequency: ${theme.frequency}` : ''}\n\nFULL INSIGHT CONTEXT:\n${currentInsights}\n\nGenerate a complete Amazon Working Backwards PRFAQ with EXACTLY these sections:\n\nHEADLINE\n[One sentence. Customer benefit focused. Does not start with "We" or "Amazon".]\n\nSUB-HEADLINE\n[One sentence expanding the headline benefit with specific detail.]\n\nCUSTOMER PROBLEM\n[Write 2 detailed paragraphs minimum. Include specific quotes from [R][Re][S] sources with real data points and customer impact.]\n\nAMAZON SOLUTION\n[Write 2 detailed paragraphs minimum. Each paragraph must reference a specific insight with measurable outcomes, timelines and success metrics.]\n\nCUSTOMER QUOTE\n["First-person quote from a satisfied customer after this solution exists."]\n\nFREQUENTLY ASKED QUESTIONS\n\nQ1: How does this work for customers?\nA1: [Specific answer]\n\nQ2: Does this apply to third-party seller orders?\nA2: [Specific answer]\n\nQ3: What happens if the solution fails or is unavailable?\nA3: [Specific answer]\n\nQ4: When will this be available to customers?\nA4: [Specific answer with timeline]\n\nQ5: How will Amazon measure success?\nA5: [3 specific measurable KPIs]\n\nUse Amazon Leadership Principles language. Every claim must be tied to evidence.`;
+    document.getElementById('prfaqContent').innerHTML = '<div class="loading"><div class="spinner-lg"></div><span>Generating PRFAQ for "' + theme.title + '"...</span></div>';
+    setTimeout(function() { document.getElementById('prfaqSection').scrollIntoView({ behavior: 'smooth' }); }, 100);
+    const prompt = 'You are a Senior Amazon Product Manager expert in Working Backwards methodology.\n\n' +
+      'Based on these cross-validated customer insights from 3 independent data sources:\n\n' +
+      'SELECTED THEME: ' + theme.title + '\n' +
+      (theme.sources ? 'Source Validation: ' + theme.sources + '\n' : '') +
+      (theme.impact ? 'Impact Score: ' + theme.impact + '/10\n' : '') +
+      (theme.frequency ? 'Frequency: ' + theme.frequency + '\n' : '') +
+      '\nFULL INSIGHT CONTEXT:\n' + currentInsights +
+      '\n\nGenerate a complete Amazon Working Backwards PRFAQ with EXACTLY these sections:\n\n' +
+      'HEADLINE\n[One sentence. Customer benefit focused. Does not start with We or Amazon.]\n\n' +
+      'SUB-HEADLINE\n[One sentence expanding the headline benefit with specific detail.]\n\n' +
+      'CUSTOMER PROBLEM\n[Write 2 detailed paragraphs. Include specific quotes from [R][Re][S] sources with real data points and customer impact.]\n\n' +
+      'AMAZON SOLUTION\n[Write 2 detailed paragraphs. Each paragraph references a specific insight with measurable outcomes, timelines and success metrics.]\n\n' +
+      'CUSTOMER QUOTE\n[First-person quote from a satisfied customer after this solution exists.]\n\n' +
+      'FREQUENTLY ASKED QUESTIONS\n\n' +
+      'Q1: How does this work for customers?\nA1: [Specific detailed answer]\n\n' +
+      'Q2: Does this apply to third-party seller orders?\nA2: [Specific detailed answer]\n\n' +
+      'Q3: What happens if the solution fails or is unavailable?\nA3: [Specific detailed answer]\n\n' +
+      'Q4: When will this be available to customers?\nA4: [Specific answer with timeline]\n\n' +
+      'Q5: How will Amazon measure success?\nA5: [3 specific measurable KPIs with targets]\n\n' +
+      'Use Amazon Leadership Principles language. Every claim must be tied to evidence from the data.';
     try {
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.5, maxOutputTokens: 8000 } }) });
+      const res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + apiKey, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.5, maxOutputTokens: 8000 } })
+      });
       const data = await res.json();
       if (data.error) throw new Error(data.error.message);
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      const text = data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text;
       if (!text) throw new Error('No response from Gemini');
       currentPRFAQ = text;
       document.getElementById('prfaqContent').innerText = text;
       showToast('✓ PRFAQ generated successfully!');
     } catch (err) {
-      document.getElementById('prfaqContent').innerHTML = `<div class="error-box">⚠ Error: ${err.message}<br><br>Please check your API key and try again.</div>`;
+      document.getElementById('prfaqContent').innerHTML = '<div class="error-box">⚠ Error: ' + err.message + '<br><br>Please check your API key and try again.</div>';
       showToast('⚠ Error — check your API key');
     }
   }
 
   function copyPRFAQ() {
     if (!currentPRFAQ) { showToast('⚠ Generate a PRFAQ first'); return; }
-    navigator.clipboard.writeText(currentPRFAQ).then(() => showToast('✓ Copied to clipboard!'));
+    navigator.clipboard.writeText(currentPRFAQ).then(function() { showToast('✓ Copied to clipboard!'); });
   }
 
   function downloadWord() {
     if (!currentPRFAQ) { showToast('⚠ Generate a PRFAQ first'); return; }
-    const html = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><style>body{font-family:Calibri,sans-serif;font-size:11pt;color:#1a1a1a;margin:2cm}h1{color:#0a1628;font-size:18pt;border-bottom:3px solid #ff9900;padding-bottom:8px}h2{color:#cc7700;font-size:13pt;margin-top:20px}p{line-height:1.6;margin-bottom:8px}.meta{color:#666;font-size:9pt;margin-bottom:24px}</style></head><body><h1>DiscoveryAI — Amazon Working Backwards PRFAQ</h1><p class="meta">Theme: ${selectedTheme} | Generated: ${new Date().toLocaleDateString()}</p>${currentPRFAQ.split('\n').map(line => { if (line.match(/^(HEADLINE|SUB-HEADLINE|CUSTOMER PROBLEM|AMAZON SOLUTION|CUSTOMER QUOTE|FREQUENTLY ASKED QUESTIONS|Q\d+:)/)) return `<h2>${line}</h2>`; return line ? `<p>${line}</p>` : '<br>'; }).join('')}</body></html>`;
+    const html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><style>body{font-family:Calibri,sans-serif;font-size:11pt;color:#1a1a1a;margin:2cm}h1{color:#0a1628;font-size:18pt;border-bottom:3px solid #ff9900;padding-bottom:8px}h2{color:#cc7700;font-size:13pt;margin-top:20px}p{line-height:1.6;margin-bottom:8px}.meta{color:#666;font-size:9pt;margin-bottom:24px}</style></head><body><h1>DiscoveryAI — Amazon Working Backwards PRFAQ</h1><p class="meta">Theme: ' + selectedTheme + ' | Generated: ' + new Date().toLocaleDateString() + '</p>' +
+      currentPRFAQ.split('\n').map(function(line) {
+        if (line.match(/^(HEADLINE|SUB-HEADLINE|CUSTOMER PROBLEM|AMAZON SOLUTION|CUSTOMER QUOTE|FREQUENTLY ASKED QUESTIONS|Q\d+:)/)) return '<h2>' + line + '</h2>';
+        return line ? '<p>' + line + '</p>' : '<br>';
+      }).join('') + '</body></html>';
     const blob = new Blob([html], { type: 'application/msword' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `PRFAQ_${selectedTheme.replace(/[^a-z0-9]/gi,'_').substring(0,40)}.doc`;
+    a.download = 'PRFAQ_' + selectedTheme.replace(/[^a-z0-9]/gi, '_').substring(0, 40) + '.doc';
     a.click();
     URL.revokeObjectURL(url);
     showToast('✓ Downloading...');
@@ -344,7 +388,7 @@
     document.getElementById('insightsSection').classList.add('hidden');
     document.getElementById('prfaqSection').classList.add('hidden');
     document.getElementById('progressWrap').classList.add('hidden');
-    document.getElementById('progressWrap').innerHTML = `<div class="section-title">Analysis in Progress</div><div class="progress-steps"><div class="progress-step" id="step-fetch"><div class="step-icon" id="icon-fetch">1</div><span>Fetching 3 CSV files from GitHub...</span></div><div class="progress-step" id="step-merge"><div class="step-icon" id="icon-merge">2</div><span>Parsing and merging 75 rows across all sources...</span></div><div class="progress-step" id="step-ai"><div class="step-icon" id="icon-ai">3</div><span>Gemini AI synthesising cross-validated insight themes...</span></div><div class="progress-step" id="step-done"><div class="step-icon" id="icon-done">4</div><span>Preparing insights for PRFAQ generation...</span></div></div>`;
+    document.getElementById('progressWrap').innerHTML = '<div class="section-title">Analysis in Progress</div><div class="progress-steps"><div class="progress-step" id="step-fetch"><div class="step-icon" id="icon-fetch">1</div><span>Fetching 3 CSV files from GitHub...</span></div><div class="progress-step" id="step-merge"><div class="step-icon" id="icon-merge">2</div><span>Parsing and merging 75 rows across all sources...</span></div><div class="progress-step" id="step-ai"><div class="step-icon" id="icon-ai">3</div><span>Gemini AI synthesising cross-validated insight themes...</span></div><div class="progress-step" id="step-done"><div class="step-icon" id="icon-done">4</div><span>Preparing insights for PRFAQ generation...</span></div></div>';
     currentInsights = ''; currentPRFAQ = ''; selectedTheme = '';
     document.getElementById('statusText').textContent = 'READY';
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -354,7 +398,7 @@
     const t = document.getElementById('toast');
     document.getElementById('toastMsg').textContent = msg;
     t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 3000);
+    setTimeout(function() { t.classList.remove('show'); }, 3000);
   }
 </script>
 </body>
